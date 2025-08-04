@@ -88,6 +88,14 @@ class Cascade
         return $this->data->merge([
             'compiled_title' => $this->compiledTitle(),
             'og_title' => $this->ogTitle(),
+            'og_description' => $this->ogDescription(),
+            'og_type' => $this->ogType(),
+            'twitter_title' => $this->twitterTitle(),
+            'twitter_description' => $this->twitterDescription(),
+            'twitter_image' => $this->twitterImage(),
+            'published_date' => $this->publishedDate(),
+            'updated_date' => $this->updatedDate(),
+            'author' => $this->author(),
             'canonical_url' => $this->canonicalUrl(),
             'prev_url' => $this->prevUrl(),
             'next_url' => $this->nextUrl(),
@@ -98,6 +106,7 @@ class Cascade
             'current_hreflang' => $this->currentHreflang($alternateLocales),
             'last_modified' => $this->lastModified(),
             'twitter_card' => config('statamic.seo-pro.twitter.card'),
+            'og_image' => $this->ogImage(),
         ])->all();
     }
 
@@ -269,6 +278,10 @@ class Cascade
 
     protected function ogTitle()
     {
+        if ($ogTitle = $this->data->get('og_title')) {
+            return $ogTitle;
+        }
+
         if ($title = $this->data->get('title')) {
             return $title;
         }
@@ -278,14 +291,14 @@ class Cascade
 
     protected function lastModified()
     {
-        return method_exists($this->model, 'lastModified')
+        return is_object($this->model) && method_exists($this->model, 'lastModified')
             ? $this->model->lastModified()
             : null;
     }
 
     protected function site()
     {
-        return method_exists($this->model, 'site')
+        return is_object($this->model) && method_exists($this->model, 'site')
             ? $this->model->site()
             : Site::default();
     }
@@ -296,7 +309,7 @@ class Cascade
             return [];
         } elseif (config('statamic.seo-pro.alternate_locales.enabled') === false) {
             return [];
-        } elseif (! $this->model) {
+        } elseif (! $this->model || !is_object($this->model)) {
             return [];
         }
 
@@ -418,6 +431,11 @@ class Cascade
 
     protected function augmentData($data)
     {
+        // Handle non-object data
+        if (!is_object($data)) {
+            return $data;
+        }
+        
         // It's a big performance hit to augment entries & terms for a sitemap,
         // when we only need the augmented `permalink`; So here we bypass the
         // augmentation and just augment what's actually used by the sitemap.
@@ -429,4 +447,132 @@ class Cascade
 
         return $data->toAugmentedArray();
     }
+
+    protected function publishedDate()
+    {
+        if (is_object($this->model)) {
+            if (method_exists($this->model, 'date') && $this->model->date()) {
+                return $this->model->date()->format('Y-m-d\TH:i:sP');
+            }
+
+            if (method_exists($this->model, 'publishedDate') && $this->model->publishedDate()) {
+                return $this->model->publishedDate()->format('Y-m-d\TH:i:sP');
+            }
+        }
+
+        return null;
+    }
+
+    protected function updatedDate()
+    {
+        if (is_object($this->model) && method_exists($this->model, 'lastModified') && $this->model->lastModified()) {
+            return $this->model->lastModified()->format('Y-m-d\TH:i:sP');
+        }
+
+        return null;
+    }
+
+    protected function author()
+    {
+        if (is_object($this->model) && method_exists($this->model, 'augmentedValue')) {
+            $augmented = $this->model->augmentedValue('author');
+            if ($augmented && method_exists($augmented, 'value')) {
+                $author = $augmented->value();
+                if (is_object($author) && method_exists($author, 'name')) {
+                    return $author->name();
+                }
+                if (is_string($author)) {
+                    return $author;
+                }
+            }
+        }
+        
+        if (is_object($this->model) && method_exists($this->model, 'author')) {
+            $author = $this->model->author();
+            if (is_object($author) && method_exists($author, 'name')) {
+                return $author->name();
+            }
+            // If it's a string ID, try to find the user
+            if (is_string($author)) {
+                $user = \Statamic\Facades\User::find($author);
+                if ($user && method_exists($user, 'name')) {
+                    return $user->name();
+                }
+                return $author;
+            }
+            if (!is_bool($author)) {
+                return (string) $author;
+            }
+        }
+
+        if (isset($this->current['author']) && $this->current['author']) {
+            if ($this->current['author'] instanceof Value) {
+                $author = $this->current['author']->value();
+                if (is_object($author) && method_exists($author, 'name')) {
+                    return $author->name();
+                }
+                return (string) $author;
+            }
+
+            return $this->current['author'];
+        }
+
+        return null;
+    }
+
+    protected function ogType()
+    {
+        // Check if explicitly set
+        if ($ogType = $this->data->get('og_type')) {
+            return $ogType;
+        }
+        
+        // Default based on collection type
+        if (is_object($this->model) && method_exists($this->model, 'collection')) {
+            $collection = $this->model->collection();
+            if ($collection && in_array($collection->handle(), ['articles', 'blog', 'news', 'posts'])) {
+                return 'article';
+            }
+        }
+        
+        return 'website';
+    }
+
+    protected function ogImage()
+    {
+        $image = $this->data->get('og_image') ?? $this->data->get('image');
+
+        if ($image instanceof Collection) {
+            $image = $image->first();
+        }
+
+        return $image;
+    }
+
+    protected function ogDescription()
+    {
+        return $this->data->get('og_description') ?? $this->data->get('description');
+    }
+
+    protected function twitterTitle()
+    {
+        return $this->data->get('twitter_title') ?? $this->data->get('title');
+    }
+
+    protected function twitterDescription()
+    {
+        return $this->data->get('twitter_description') ?? $this->data->get('description');
+    }
+
+    protected function twitterImage()
+    {
+        $image = $this->data->get('twitter_image') ?? $this->data->get('og_image') ?? $this->data->get('image');
+
+        if ($image instanceof Collection) {
+            $image = $image->first();
+        }
+
+        return $image;
+    }
+
 }

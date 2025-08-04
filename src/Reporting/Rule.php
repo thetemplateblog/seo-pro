@@ -96,7 +96,8 @@ abstract class Rule
 
     public function process()
     {
-        return $this->isValidatingPage() ? $this->processPage() : $this->processSite();
+        $this->isValidatingPage() ? $this->processPage() : $this->processSite();
+        return $this;
     }
 
     public function processPage()

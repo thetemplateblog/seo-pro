@@ -37,6 +37,13 @@ class Report implements Arrayable, Jsonable
         Rules\UniqueMetaDescription::class,
         Rules\NoUnderscoresInUrl::class,
         Rules\ThreeSegmentUrls::class,
+        Rules\TitleLength::class,
+        Rules\DescriptionLength::class,
+        Rules\PublishedDate::class,
+        Rules\UpdatedDate::class,
+        Rules\AuthorMetadata::class,
+        Rules\OpenGraphMetadata::class,
+        Rules\TwitterCardMetadata::class,
     ];
 
     public static function create($id = null)
@@ -273,6 +280,18 @@ class Report implements Arrayable, Jsonable
             'id' => $page->id(),
             'edit_url' => $page->editUrl(),
             'results' => $page->getRuleResults(),
+            'metadata' => [
+                'published_date' => $page->get('published_date'),
+                'updated_date' => $page->get('updated_date'),
+                'author' => $page->get('author'),
+                'og_type' => $page->get('og_type'),
+                'og_image' => $page->get('og_image'),
+                'og_description' => $page->get('og_description'),
+                'twitter_card' => $page->get('twitter_card'),
+                'twitter_title' => $page->get('twitter_title'),
+                'twitter_description' => $page->get('twitter_description'),
+                'twitter_image' => $page->get('twitter_image'),
+            ],
         ];
     }
 

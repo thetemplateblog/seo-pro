@@ -69,8 +69,48 @@ return [
         'no_underscores_in_url_site_failing' => ':count page with underscores in URL.|:count pages with underscores in their URLs.',
         'three_segment_urls_actionable_pill' => 'URL',
         'three_segment_urls_site' => 'Page URLs should be a maximum of 3 segments.',
+        'published_date' => [
+            'description' => 'Pages should have a published date for better SEO',
+            'fail' => 'Missing published date',
+            'warning' => 'Consider adding a published date',
+            'pill' => 'Published Date',
+        ],
+        'updated_date' => [
+            'description' => 'Pages should have an updated/modified date for search engines to understand content freshness',
+            'fail' => 'Missing updated date',
+            'warning' => 'Consider tracking when content was last modified',
+            'pill' => 'Updated Date',
+        ],
+        'author_metadata' => [
+            'description' => 'Pages should have author information for enhanced SEO',
+            'fail' => 'Missing author information',
+            'warning' => 'Consider adding author information',
+            'pill' => 'Author',
+        ],
+        'open_graph_metadata' => [
+            'description' => 'Pages should have complete Open Graph metadata for social sharing (image validation is skipped)',
+            'fail' => 'Missing critical Open Graph metadata',
+            'warning' => 'Incomplete Open Graph metadata',
+            'pill' => 'Open Graph',
+        ],
+        'twitter_card_metadata' => [
+            'description' => 'Pages should have Twitter Card metadata for better social sharing (image validation is skipped)',
+            'fail' => 'Missing Twitter Card metadata',
+            'warning' => 'Incomplete Twitter Card metadata',
+            'pill' => 'Twitter Card',
+        ],
         'three_segment_urls_page' => 'The URL should be a maximum of 3 segments.',
         'three_segment_urls_site_warning' => ':count page with more than 3 segments in URL.|:count pages with more than 3 segments in their URLs.',
+        'title_length' => [
+            'description' => 'Page titles should be between 30-60 characters for optimal display in search results',
+            'warning' => 'Title length is not optimal',
+            'pill' => 'Title Length',
+        ],
+        'description_length' => [
+            'description' => 'Meta descriptions should be between 120-160 characters for optimal display in search results',
+            'warning' => 'Description length is not optimal',
+            'pill' => 'Description Length',
+        ],
     ],
 
 ];
