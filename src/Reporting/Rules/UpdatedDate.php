@@ -28,19 +28,9 @@ class UpdatedDate extends Rule
         return __('seo-pro::messages.rules.updated_date.warning');
     }
 
-    public function siteFailingComment()
-    {
-        return __('seo-pro::messages.rules.updated_date.fail', ['count' => $this->failures]);
-    }
-
-    public function pageFailingComment()
-    {
-        return __('seo-pro::messages.rules.updated_date.fail');
-    }
-
     public function processPage()
     {
-        // The trait will handle the page processing based on pageStatus()
+        // Page processing for updated date metadata
     }
 
     public function savePage()

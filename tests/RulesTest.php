@@ -417,14 +417,12 @@ class RulesTest extends TestCase
     /** @test */
     public function updated_date_rule_passes_when_date_exists()
     {
-        // Simply pass updated_date directly in the cascade data
-        $cascadeData = [
-            'title' => 'Test Page',
+        // Create a page with updated_date directly since Cascade's updatedDate() 
+        // relies on Entry's lastModified() which is not easily testable
+        $page = new Page('test-id', [
+            'updated_date' => '2024-01-15T10:00:00+00:00',
             'canonical_url' => 'http://test.com/page',
-            'updated_date' => '2024-01-15T10:00:00+00:00'
-        ];
-        
-        $page = new Page('test-id', $cascadeData, Report::create());
+        ], Report::create());
         
         $rule = new UpdatedDate();
         $result = $rule->setPage($page)->process();
@@ -447,13 +445,10 @@ class RulesTest extends TestCase
     /** @test */
     public function updated_date_rule_passes_for_taxonomy_pages()
     {
-        // Taxonomy pages are identified by :: in their ID
-        $report = Report::create();
-        $page = new Page('categories::technology', [
+        $page = $this->createPageWithData([
             'id' => 'categories::technology',
-            'title' => 'Technology',
-            'canonical_url' => 'http://test.com/categories/technology'
-        ], $report);
+            'url' => 'https://example.com/categories/technology'
+        ]);
         
         $rule = new UpdatedDate();
         $result = $rule->setPage($page)->process();
