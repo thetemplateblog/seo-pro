@@ -51,30 +51,48 @@ class PublishedDate extends Rule
             return 'pass'; // Taxonomy pages don't need published dates
         }
         
-        // Check if this is a dated entry (has a date in the data)
+        // Check if this page has a published date
         $publishedDate = $this->page->get('published_date');
         
-        // If there's no published date, check if this is a regular page
-        // Pages that aren't blog entries/articles don't need published dates
-        if (empty($publishedDate)) {
-            // If the page doesn't have typical blog entry indicators, pass it
-            $hasDate = !empty($this->page->get('date'));
-            $hasAuthor = !empty($this->page->get('author'));
-            
-            // If it has neither date nor author fields, it's likely a regular page
-            if (!$hasDate && !$hasAuthor) {
-                return 'pass';
+        // If it has a published date, pass
+        if (!empty($publishedDate)) {
+            return 'pass';
+        }
+        
+        // Check if this looks like a dated entry based on URL pattern
+        // Articles typically have date-based URLs or specific content patterns
+        $url = $this->page->get('url') ?? '';
+        $canonical = $this->page->get('canonical_url') ?? '';
+        
+        // Check for common blog/article URL patterns that should have dates
+        $blogPatterns = [
+            '/writing/',
+            '/blog/',
+            '/posts/',
+            '/articles/',
+            '/news/',
+        ];
+        
+        $shouldHaveDate = false;
+        foreach ($blogPatterns as $pattern) {
+            if (str_contains($url, $pattern) || str_contains($canonical, $pattern)) {
+                $shouldHaveDate = true;
+                break;
             }
-            
-            // If it has updated_date but no published_date, it's likely a page
-            $updatedDate = $this->page->get('updated_date');
-            if (!empty($updatedDate)) {
-                return 'pass';
-            }
-            
+        }
+        
+        // Also check for date patterns in URL
+        if (preg_match('/\/\d{4}\/\d{2}\//', $url) || 
+            preg_match('/\/\d{4}\/\d{2}\//', $canonical)) {
+            $shouldHaveDate = true;
+        }
+        
+        // Only fail if this appears to be blog/article content
+        if ($shouldHaveDate) {
             return 'fail';
         }
         
+        // For all other pages (home, about, contact, etc.), pass
         return 'pass';
     }
 

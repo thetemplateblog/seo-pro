@@ -63,9 +63,9 @@ class TwitterCardMetadata extends Rule
         if (empty($twitterTitle)) $missingCount++;
         if (empty($twitterCard)) $missingCount++;
 
-        // If no Twitter metadata at all, it's just a warning (not critical)
+        // If both are missing, it's a failure
         if ($missingCount >= 2) {
-            return 'warning';
+            return 'fail';
         } elseif ($missingCount > 0) {
             return 'warning';
         }
