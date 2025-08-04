@@ -52,8 +52,8 @@ class TwitterCardMetadata extends Rule
     {
         $twitterTitle = $this->page->get('twitter_title');
         $twitterCard = $this->page->get('twitter_card');
+        // Skip twitter:image - images are optional for Twitter Cards
 
-        // Description is optional for Twitter Cards
         $missingCount = 0;
         if (empty($twitterTitle)) $missingCount++;
         if (empty($twitterCard)) $missingCount++;
