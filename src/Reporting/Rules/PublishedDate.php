@@ -45,12 +45,6 @@ class PublishedDate extends Rule
 
     public function pageStatus()
     {
-        // Skip taxonomy/term pages and other non-entry pages
-        $id = $this->page->get('id');
-        if (is_string($id) && str_contains($id, '::')) {
-            return 'pass'; // Taxonomy pages don't need published dates
-        }
-        
         // Check if this page has a published date
         $publishedDate = $this->page->get('published_date');
         
@@ -59,51 +53,40 @@ class PublishedDate extends Rule
             return 'pass';
         }
         
-        // Check if this looks like a dated entry based on URL pattern
-        // Articles typically have date-based URLs or specific content patterns
-        $url = $this->page->get('url') ?? '';
-        $canonical = $this->page->get('canonical_url') ?? '';
+        // Get the model to determine if this is a collection entry or taxonomy term
+        $model = $this->page->model();
         
-        // Check for common blog/article URL patterns that should have dates
-        $blogPatterns = [
-            '/writing/',
-            '/blog/',
-            '/posts/',
-            '/articles/',
-            '/news/',
-        ];
+        // If we can't get the model, be lenient and pass
+        if (!$model) {
+            return 'pass';
+        }
         
-        $shouldHaveDate = false;
-        foreach ($blogPatterns as $pattern) {
-            if (str_contains($url, $pattern) || str_contains($canonical, $pattern)) {
-                $shouldHaveDate = true;
-                break;
+        // Check if this is a taxonomy term (Terms don't need published dates)
+        if ($model instanceof \Statamic\Taxonomies\LocalizedTerm || 
+            $model instanceof \Statamic\Taxonomies\Term) {
+            return 'pass';
+        }
+        
+        // Check if this is an entry
+        if ($model instanceof \Statamic\Entries\Entry) {
+            $collection = $model->collection();
+            
+            // If it's a dated collection, it should have a published date
+            if ($collection && $collection->dated()) {
+                return 'fail';
+            }
+            
+            // Check if the collection is configured to require dates
+            // Collections like 'articles', 'blog', 'news' typically need dates
+            $handle = $collection ? $collection->handle() : '';
+            $datedCollections = ['articles', 'blog', 'posts', 'news', 'updates'];
+            
+            if (in_array($handle, $datedCollections)) {
+                return 'fail';
             }
         }
         
-        // Also check for date patterns in URL
-        if (preg_match('/\/\d{4}\/\d{2}\//', $url) || 
-            preg_match('/\/\d{4}\/\d{2}\//', $canonical)) {
-            $shouldHaveDate = true;
-        }
-        
-        // Check if this has typical blog metadata that suggests it should have a date
-        // But only if it looks like a blog based on URL patterns
-        if ($shouldHaveDate) {
-            return 'fail';
-        }
-        
-        // Check if this page has significant content metadata suggesting it's an article
-        $hasAuthor = !empty($this->page->get('author'));
-        $hasCategories = !empty($this->page->get('categories'));
-        $title = $this->page->get('title') ?? '';
-        
-        // If it has an author and looks like article content, it should have a date
-        if ($hasAuthor && ($hasCategories || str_contains(strtolower($title), 'article'))) {
-            return 'fail';
-        }
-        
-        // For all other pages (home, about, contact, etc.), pass
+        // For all other content types (pages, etc.), pass
         return 'pass';
     }
 

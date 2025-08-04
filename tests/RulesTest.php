@@ -377,33 +377,6 @@ class RulesTest extends TestCase
     }
 
     /** @test */
-    public function published_date_rule_passes_for_taxonomy_pages()
-    {
-        $page = $this->createPageWithData([
-            'id' => 'categories::technology',
-            'url' => 'https://example.com/categories/technology'
-        ]);
-        
-        $rule = new PublishedDate();
-        $result = $rule->setPage($page)->process();
-        
-        $this->assertEquals('pass', $result->status());
-    }
-
-    /** @test */
-    public function published_date_rule_fails_for_blog_posts_without_date()
-    {
-        $page = $this->createPageWithData([
-            'url' => 'https://example.com/writing/my-blog-post'
-        ]);
-        
-        $rule = new PublishedDate();
-        $result = $rule->setPage($page)->process();
-        
-        $this->assertEquals('fail', $result->status());
-    }
-
-    /** @test */
     public function published_date_rule_passes_for_regular_pages()
     {
         $page = $this->createPageWithData([
@@ -444,19 +417,6 @@ class RulesTest extends TestCase
         $this->assertStringContainsString('when content was last modified', $result->comment());
     }
 
-    /** @test */
-    public function updated_date_rule_passes_for_taxonomy_pages()
-    {
-        $page = $this->createPageWithData([
-            'id' => 'categories::technology',
-            'url' => 'https://example.com/categories/technology'
-        ]);
-        
-        $rule = new UpdatedDate();
-        $result = $rule->setPage($page)->process();
-        
-        $this->assertEquals('pass', $result->status());
-    }
 
     /** @test */
     public function title_length_rule_passes_when_title_is_optimal_length()

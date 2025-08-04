@@ -45,12 +45,6 @@ class UpdatedDate extends Rule
 
     public function pageStatus()
     {
-        // Skip taxonomy/term pages as they may not have traditional updated dates
-        $id = $this->page->get('id');
-        if (is_string($id) && str_contains($id, '::')) {
-            return 'pass'; // Taxonomy pages get updated when content is added/removed
-        }
-        
         // Check if this page has an updated date
         $updatedDate = $this->page->get('updated_date');
         
@@ -59,7 +53,16 @@ class UpdatedDate extends Rule
             return 'pass';
         }
         
-        // For pages without updated dates, warn
+        // Get the model to determine content type
+        $model = $this->page->model();
+        
+        // Check if this is a taxonomy term (Terms don't need updated dates)
+        if ($model instanceof \Statamic\Taxonomies\LocalizedTerm || 
+            $model instanceof \Statamic\Taxonomies\Term) {
+            return 'pass';
+        }
+        
+        // For all other content (entries, pages, etc.), warn about missing updated date
         return 'warning';
     }
 
