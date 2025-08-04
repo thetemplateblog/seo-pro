@@ -87,8 +87,19 @@ class PublishedDate extends Rule
             $shouldHaveDate = true;
         }
         
-        // Only fail if this appears to be blog/article content
+        // Check if this has typical blog metadata that suggests it should have a date
+        // But only if it looks like a blog based on URL patterns
         if ($shouldHaveDate) {
+            return 'fail';
+        }
+        
+        // Check if this page has significant content metadata suggesting it's an article
+        $hasAuthor = !empty($this->page->get('author'));
+        $hasCategories = !empty($this->page->get('categories'));
+        $title = $this->page->get('title') ?? '';
+        
+        // If it has an author and looks like article content, it should have a date
+        if ($hasAuthor && ($hasCategories || str_contains(strtolower($title), 'article'))) {
             return 'fail';
         }
         
