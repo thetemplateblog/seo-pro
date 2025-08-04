@@ -82,13 +82,13 @@ return [
             'pill' => 'Author',
         ],
         'open_graph_metadata' => [
-            'description' => 'Pages should have complete Open Graph metadata for social sharing',
+            'description' => 'Pages should have complete Open Graph metadata for social sharing (image validation is skipped)',
             'fail' => 'Missing critical Open Graph metadata',
             'warning' => 'Incomplete Open Graph metadata',
             'pill' => 'Open Graph',
         ],
         'twitter_card_metadata' => [
-            'description' => 'Pages should have Twitter Card metadata for better social sharing',
+            'description' => 'Pages should have Twitter Card metadata for better social sharing (image validation is skipped)',
             'fail' => 'Missing Twitter Card metadata',
             'warning' => 'Incomplete Twitter Card metadata',
             'pill' => 'Twitter Card',
