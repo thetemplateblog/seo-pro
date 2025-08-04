@@ -55,23 +55,31 @@ class TwitterCardMetadata extends Rule
 
     public function pageStatus()
     {
+        $twitterCard = $this->page->get('twitter_card');
         $twitterTitle = $this->page->get('twitter_title');
         $twitterDescription = $this->page->get('twitter_description');
-        $twitterCard = $this->page->get('twitter_card');
-        // Skip twitter:image - images are optional for Twitter Cards
-
-        $missingCount = 0;
-        if (empty($twitterTitle)) $missingCount++;
-        if (empty($twitterDescription)) $missingCount++;
-        if (empty($twitterCard)) $missingCount++;
-
-        // If all are missing, it's a failure
-        if ($missingCount >= 3) {
+        
+        // Twitter cards work well with just twitter:card set
+        // They will fall back to OG data for title/description if not specified
+        // We skip twitter:image validation completely
+        
+        // Must have twitter:card set
+        if (empty($twitterCard)) {
             return 'fail';
-        } elseif ($missingCount > 0) {
-            return 'warning';
         }
-
+        
+        // If twitter:card is set but no Twitter-specific title/description,
+        // check if we have OG fallbacks
+        if (empty($twitterTitle) && empty($twitterDescription)) {
+            $ogTitle = $this->page->get('og_title');
+            $ogDescription = $this->page->get('og_description');
+            
+            // Warn if there's no Twitter metadata AND no OG fallbacks
+            if (empty($ogTitle) && empty($ogDescription)) {
+                return 'warning';
+            }
+        }
+        
         return 'pass';
     }
 
