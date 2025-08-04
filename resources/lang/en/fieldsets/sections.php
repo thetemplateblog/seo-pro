@@ -58,6 +58,9 @@ return [
     'updated_date' => 'Updated Date',
     'updated_date_instruct' => 'Select the field that contains the updated date for entries in this section.',
 
+    'require_published_date' => 'Require Published Date',
+    'require_published_date_instruct' => 'Enable this to require entries in this collection to have a published date for SEO reporting.',
+
     'sitemap_section' => 'Site Map',
 
     'sitemap' => 'Sitemap',

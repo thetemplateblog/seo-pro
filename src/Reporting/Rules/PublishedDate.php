@@ -71,18 +71,18 @@ class PublishedDate extends Rule
         if ($model instanceof \Statamic\Entries\Entry) {
             $collection = $model->collection();
             
-            // If it's a dated collection, it should have a published date
-            if ($collection && $collection->dated()) {
-                return 'fail';
-            }
-            
-            // Check if the collection is configured to require dates
-            // Collections like 'articles', 'blog', 'news' typically need dates
-            $handle = $collection ? $collection->handle() : '';
-            $datedCollections = ['articles', 'blog', 'posts', 'news', 'updates'];
-            
-            if (in_array($handle, $datedCollections)) {
-                return 'fail';
+            if ($collection) {
+                // Check if the collection has the "require_published_date" setting enabled
+                $requireDate = $collection->cascade('require_published_date');
+                
+                if ($requireDate === true) {
+                    return 'fail';
+                }
+                
+                // If it's a dated collection, it should have a published date
+                if ($collection->dated()) {
+                    return 'fail';
+                }
             }
         }
         

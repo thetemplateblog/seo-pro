@@ -275,6 +275,16 @@ class Fields
                 ],
             ],
             [
+                'handle' => 'require_published_date',
+                'field' => [
+                    'display' => __("seo-pro::fieldsets/{$langFile}.require_published_date"),
+                    'instructions' => __("seo-pro::fieldsets/{$langFile}.require_published_date_instruct"),
+                    'type' => 'toggle',
+                    'default' => false,
+                    'localizable' => false,
+                ],
+            ],
+            [
                 'handle' => 'sitemap',
                 'field' => [
                     'display' => __("seo-pro::fieldsets/{$langFile}.sitemap"),

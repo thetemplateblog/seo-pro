@@ -84,22 +84,18 @@ class RulesTest extends TestCase
     }
 
     /** @test */
-    public function published_date_rule_fails_when_date_is_missing()
+    public function published_date_rule_passes_when_collection_doesnt_require_dates()
     {
-        // Create a page that looks like an article (has author and title with "article")
+        // Create an entry in a collection that doesn't require published dates
         $page = $this->createPageWithData([
-            'url' => 'https://example.com/test-article',
-            'canonical_url' => 'https://example.com/test-article',
-            'author' => 'Test Author',
-            'title' => 'Test Article',
             'published_date' => null  // Explicitly set to null
-        ]);
+        ], []);
         
         $rule = new PublishedDate();
         $rule->setReport(Report::create());
         $rule->setPage($page);
         
-        // With current logic, this passes because it doesn't match URL patterns
+        // Should pass because the collection doesn't have require_published_date enabled
         $this->assertEquals('pass', $rule->pageStatus());
     }
 
@@ -219,13 +215,12 @@ class RulesTest extends TestCase
     /** @test */
     public function published_date_rule_processes_correctly()
     {
-        // Create entries that should trigger the published date rule
-        // The rule looks for entries with /writing/ in URL 
+        // Create entries that won't have require_published_date enabled
         collect(range(1, 3))->each(function ($i) {
             $entry = Entry::make()
                 ->collection('pages')
-                ->slug('writing-test-article-'.$i)  
-                ->set('title', 'Test Article '.$i);
+                ->slug('test-page-'.$i)  
+                ->set('title', 'Test Page '.$i);
                 
             // Only the first 2 entries get published_date in their data
             if ($i <= 2) {
@@ -244,8 +239,7 @@ class RulesTest extends TestCase
         
         $result = $this->getReportResult('PublishedDate');
         
-        // We created 3 entries but they won't match /writing/ pattern in their URLs
-        // So all should pass since they're regular pages
+        // All should pass since the collection doesn't have require_published_date enabled
         $this->assertEquals(0, $result);
     }
 
