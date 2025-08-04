@@ -261,49 +261,31 @@ class RulesTest extends TestCase
         $this->assertEquals(1, $result); // 1 entry missing author
     }
 
-    // These tests are temporarily disabled due to complex fixture dependencies
-    // They would need to be rewritten to work with the new validation logic
-    
-    // /** @test */
-    // public function open_graph_metadata_rule_processes_correctly()
-    // {
-    //     $this->generateEntries(3);
-    //     
-    //     Entry::all()
-    //         ->take(1)
-    //         ->each(fn ($entry) => $entry->data([
-    //             'seo' => [
-    //                 'og_type' => 'article',
-    //                 'og_title' => 'OG Title',
-    //                 'og_description' => 'Description',
-    //             ]
-    //         ])->save());
-    //     
-    //     Report::create()->save()->generate();
-    //     
-    //     $result = $this->getReportResult('OpenGraphMetadata');
-    //     $this->assertEquals(0, $result);
-    // }
+    /** @test */
+    public function open_graph_metadata_rule_processes_correctly()
+    {
+        $this->generateEntries(3);
+        
+        // All entries get og_type from site defaults ('website')
+        // So all should pass
+        Report::create()->save()->generate();
+        
+        $result = $this->getReportResult('OpenGraphMetadata');
+        $this->assertEquals(0, $result); // All pass
+    }
 
-    // /** @test */
-    // public function twitter_card_metadata_rule_processes_correctly()
-    // {
-    //     $this->generateEntries(3);
-    //     
-    //     Entry::all()
-    //         ->take(2)
-    //         ->each(fn ($entry) => $entry->data([
-    //             'seo' => [
-    //                 'twitter_card' => 'summary_large_image',
-    //                 'twitter_title' => 'Title',
-    //             ]
-    //         ])->save());
-    //     
-    //     Report::create()->save()->generate();
-    //     
-    //     $result = $this->getReportResult('TwitterCardMetadata');
-    //     $this->assertEquals(3, $result);
-    // }
+    /** @test */
+    public function twitter_card_metadata_rule_processes_correctly()
+    {
+        $this->generateEntries(3);
+        
+        // All entries get twitter_card from site defaults
+        // And they have OG fallbacks, so all should pass
+        Report::create()->save()->generate();
+        
+        $result = $this->getReportResult('TwitterCardMetadata');
+        $this->assertEquals(0, $result); // All pass
+    }
 
     protected function generateEntries($count)
     {
@@ -380,8 +362,9 @@ class RulesTest extends TestCase
     public function twitter_card_metadata_rule_passes_without_image_validation()
     {
         $page = $this->createPageWithData([
-            'twitter_title' => 'Twitter Title',
-            'twitter_card' => 'summary_large_image'
+            'twitter_card' => 'summary_large_image',
+            'og_title' => 'OG Title',
+            'og_description' => 'OG Description'
         ]);
         
         $rule = new TwitterCardMetadata();

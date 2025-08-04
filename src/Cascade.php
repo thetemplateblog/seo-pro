@@ -291,14 +291,14 @@ class Cascade
 
     protected function lastModified()
     {
-        return method_exists($this->model, 'lastModified')
+        return is_object($this->model) && method_exists($this->model, 'lastModified')
             ? $this->model->lastModified()
             : null;
     }
 
     protected function site()
     {
-        return method_exists($this->model, 'site')
+        return is_object($this->model) && method_exists($this->model, 'site')
             ? $this->model->site()
             : Site::default();
     }
@@ -309,7 +309,7 @@ class Cascade
             return [];
         } elseif (config('statamic.seo-pro.alternate_locales.enabled') === false) {
             return [];
-        } elseif (! $this->model) {
+        } elseif (! $this->model || !is_object($this->model)) {
             return [];
         }
 
@@ -431,6 +431,11 @@ class Cascade
 
     protected function augmentData($data)
     {
+        // Handle non-object data
+        if (!is_object($data)) {
+            return $data;
+        }
+        
         // It's a big performance hit to augment entries & terms for a sitemap,
         // when we only need the augmented `permalink`; So here we bypass the
         // augmentation and just augment what's actually used by the sitemap.
@@ -445,12 +450,14 @@ class Cascade
 
     protected function publishedDate()
     {
-        if (method_exists($this->model, 'date') && $this->model->date()) {
-            return $this->model->date()->format('Y-m-d\TH:i:sP');
-        }
+        if (is_object($this->model)) {
+            if (method_exists($this->model, 'date') && $this->model->date()) {
+                return $this->model->date()->format('Y-m-d\TH:i:sP');
+            }
 
-        if (method_exists($this->model, 'publishedDate') && $this->model->publishedDate()) {
-            return $this->model->publishedDate()->format('Y-m-d\TH:i:sP');
+            if (method_exists($this->model, 'publishedDate') && $this->model->publishedDate()) {
+                return $this->model->publishedDate()->format('Y-m-d\TH:i:sP');
+            }
         }
 
         return null;
@@ -458,7 +465,7 @@ class Cascade
 
     protected function updatedDate()
     {
-        if (method_exists($this->model, 'lastModified') && $this->model->lastModified()) {
+        if (is_object($this->model) && method_exists($this->model, 'lastModified') && $this->model->lastModified()) {
             return $this->model->lastModified()->format('Y-m-d\TH:i:sP');
         }
 
@@ -467,7 +474,7 @@ class Cascade
 
     protected function author()
     {
-        if (method_exists($this->model, 'augmentedValue')) {
+        if (is_object($this->model) && method_exists($this->model, 'augmentedValue')) {
             $augmented = $this->model->augmentedValue('author');
             if ($augmented && method_exists($augmented, 'value')) {
                 $author = $augmented->value();
@@ -480,12 +487,22 @@ class Cascade
             }
         }
         
-        if (method_exists($this->model, 'author') && $author = $this->model->author()) {
+        if (is_object($this->model) && method_exists($this->model, 'author')) {
+            $author = $this->model->author();
             if (is_object($author) && method_exists($author, 'name')) {
                 return $author->name();
             }
-
-            return (string) $author;
+            // If it's a string ID, try to find the user
+            if (is_string($author)) {
+                $user = \Statamic\Facades\User::find($author);
+                if ($user && method_exists($user, 'name')) {
+                    return $user->name();
+                }
+                return $author;
+            }
+            if (!is_bool($author)) {
+                return (string) $author;
+            }
         }
 
         if (isset($this->current['author']) && $this->current['author']) {
@@ -505,7 +522,20 @@ class Cascade
 
     protected function ogType()
     {
-        return $this->data->get('og_type', 'website');
+        // Check if explicitly set
+        if ($ogType = $this->data->get('og_type')) {
+            return $ogType;
+        }
+        
+        // Default based on collection type
+        if (is_object($this->model) && method_exists($this->model, 'collection')) {
+            $collection = $this->model->collection();
+            if ($collection && in_array($collection->handle(), ['articles', 'blog', 'news', 'posts'])) {
+                return 'article';
+            }
+        }
+        
+        return 'website';
     }
 
     protected function ogImage()

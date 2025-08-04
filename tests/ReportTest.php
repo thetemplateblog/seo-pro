@@ -81,7 +81,7 @@ EXPECTED;
         $expected = <<<"EXPECTED"
 date: $now->timestamp
 status: fail
-score: 75.0
+score: 81.0
 pages_crawled: 10
 pages_actionable: 10
 results:
@@ -90,6 +90,10 @@ results:
   UniqueMetaDescription: 10
   NoUnderscoresInUrl: 0
   ThreeSegmentUrls: 0
+  PublishedDate: 0
+  AuthorMetadata: 10
+  OpenGraphMetadata: 0
+  TwitterCardMetadata: 0
 
 EXPECTED;
 
@@ -194,15 +198,19 @@ EXPECTED;
         $expected = <<<"EXPECTED"
 date: $now->timestamp
 status: fail
-score: 75.0
+score: 81.0
 pages_crawled: 10
-pages_actionable: 6
+pages_actionable: 10
 results:
   SiteName: true
   UniqueTitleTag: 4
   UniqueMetaDescription: 2
   NoUnderscoresInUrl: 0
   ThreeSegmentUrls: 0
+  PublishedDate: 0
+  AuthorMetadata: 10
+  OpenGraphMetadata: 0
+  TwitterCardMetadata: 0
 
 EXPECTED;
 
@@ -236,7 +244,7 @@ EXPECTED;
         $expected = <<<"EXPECTED"
 date: $now->timestamp
 status: fail
-score: 75.0
+score: 81.0
 pages_crawled: 10
 pages_actionable: 10
 results:
@@ -245,6 +253,10 @@ results:
   UniqueMetaDescription: 10
   NoUnderscoresInUrl: 0
   ThreeSegmentUrls: 0
+  PublishedDate: 0
+  AuthorMetadata: 10
+  OpenGraphMetadata: 0
+  TwitterCardMetadata: 0
 
 EXPECTED;
 
@@ -274,7 +286,7 @@ EXPECTED;
         $expected = <<<"EXPECTED"
 date: $now->timestamp
 status: fail
-score: 76.0
+score: 82.0
 pages_crawled: 9
 pages_actionable: 9
 results:
@@ -283,6 +295,10 @@ results:
   UniqueMetaDescription: 9
   NoUnderscoresInUrl: 0
   ThreeSegmentUrls: 0
+  PublishedDate: 0
+  AuthorMetadata: 9
+  OpenGraphMetadata: 0
+  TwitterCardMetadata: 0
 
 EXPECTED;
 
