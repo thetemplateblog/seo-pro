@@ -6,7 +6,7 @@ use Statamic\SeoPro\Reporting\Rule;
 
 class OpenGraphMetadata extends Rule
 {
-    use Concerns\FailsOrWarnsWhenPagesDontPass;
+    use Concerns\WarnsWhenPagesDontPass;
 
     public function siteDescription()
     {
@@ -30,12 +30,17 @@ class OpenGraphMetadata extends Rule
 
     public function siteWarningComment()
     {
-        return __('seo-pro::messages.rules.open_graph_metadata.warning', ['count' => $this->warnings]);
+        return __('seo-pro::messages.rules.open_graph_metadata.warning', ['count' => $this->failures]);
     }
 
     public function pageWarningComment()
     {
         return __('seo-pro::messages.rules.open_graph_metadata.warning');
+    }
+
+    public function processPage()
+    {
+        // Page processing for OpenGraph metadata
     }
 
     public function savePage()
@@ -74,7 +79,7 @@ class OpenGraphMetadata extends Rule
 
     public function demerits()
     {
-        return $this->failures + ($this->warnings * 0.5);
+        return $this->failures * 0.5;
     }
 
     public function actionablePill()

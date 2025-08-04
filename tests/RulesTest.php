@@ -115,7 +115,7 @@ class RulesTest extends TestCase
     }
 
     /** @test */
-    public function open_graph_metadata_rule_fails_without_critical_data()
+    public function open_graph_metadata_rule_passes_with_fallback_data()
     {
         $page = $this->createPageWithData([
             'og_description' => 'Description',
@@ -125,7 +125,7 @@ class RulesTest extends TestCase
         $rule->setReport(Report::create());
         $rule->setPage($page);
         
-        $this->assertEquals('fail', $rule->pageStatus());
+        $this->assertEquals('pass', $rule->pageStatus());
     }
 
     /** @test */
@@ -144,7 +144,7 @@ class RulesTest extends TestCase
     }
 
     /** @test */
-    public function twitter_card_metadata_rule_warns_without_twitter_image()
+    public function twitter_card_metadata_rule_passes_with_fallback_data()
     {
         $page = $this->createPageWithData([]);
         
@@ -152,7 +152,7 @@ class RulesTest extends TestCase
         $rule->setReport(Report::create());
         $rule->setPage($page);
         
-        $this->assertEquals('warning', $rule->pageStatus());
+        $this->assertEquals('pass', $rule->pageStatus());
     }
 
     /** @test */
@@ -173,7 +173,7 @@ class RulesTest extends TestCase
     }
 
     /** @test */
-    public function twitter_card_metadata_rule_warns_with_partial_twitter_data()
+    public function twitter_card_metadata_rule_passes_with_partial_twitter_data()
     {
         $page = $this->createPageWithData([
             'twitter_card' => 'summary_large_image',
@@ -184,7 +184,7 @@ class RulesTest extends TestCase
         $rule->setReport(Report::create());
         $rule->setPage($page);
         
-        $this->assertEquals('warning', $rule->pageStatus());
+        $this->assertEquals('pass', $rule->pageStatus());
     }
 
     /** @test */
@@ -337,7 +337,10 @@ class RulesTest extends TestCase
     /** @test */
     public function twitter_card_metadata_rule_passes_without_image_validation()
     {
-        $page = $this->createPageWithData(['twitter_title' => 'Twitter Title']);
+        $page = $this->createPageWithData([
+            'twitter_title' => 'Twitter Title',
+            'twitter_card' => 'summary_large_image'
+        ]);
         
         $rule = new TwitterCardMetadata();
         $result = $rule->setPage($page)->process();

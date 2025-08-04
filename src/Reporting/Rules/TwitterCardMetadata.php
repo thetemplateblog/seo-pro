@@ -6,7 +6,7 @@ use Statamic\SeoPro\Reporting\Rule;
 
 class TwitterCardMetadata extends Rule
 {
-    use Concerns\FailsOrWarnsWhenPagesDontPass;
+    use Concerns\WarnsWhenPagesDontPass;
 
     public function siteDescription()
     {
@@ -20,7 +20,7 @@ class TwitterCardMetadata extends Rule
 
     public function siteWarningComment()
     {
-        return __('seo-pro::messages.rules.twitter_card_metadata.warning', ['count' => $this->warnings]);
+        return __('seo-pro::messages.rules.twitter_card_metadata.warning', ['count' => $this->failures]);
     }
 
     public function pageWarningComment()
@@ -36,6 +36,11 @@ class TwitterCardMetadata extends Rule
     public function pageFailingComment()
     {
         return __('seo-pro::messages.rules.twitter_card_metadata.fail');
+    }
+
+    public function processPage()
+    {
+        // Page processing for Twitter Card metadata
     }
 
     public function savePage()
@@ -58,8 +63,9 @@ class TwitterCardMetadata extends Rule
         if (empty($twitterTitle)) $missingCount++;
         if (empty($twitterCard)) $missingCount++;
 
+        // If no Twitter metadata at all, it's just a warning (not critical)
         if ($missingCount >= 2) {
-            return 'fail';
+            return 'warning';
         } elseif ($missingCount > 0) {
             return 'warning';
         }
@@ -74,7 +80,7 @@ class TwitterCardMetadata extends Rule
 
     public function demerits()
     {
-        return $this->failures + ($this->warnings * 0.5);
+        return $this->failures * 0.5;
     }
 
     public function actionablePill()

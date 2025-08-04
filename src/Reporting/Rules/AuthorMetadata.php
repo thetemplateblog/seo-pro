@@ -28,6 +28,11 @@ class AuthorMetadata extends Rule
         return __('seo-pro::messages.rules.author_metadata.warning');
     }
 
+    public function processPage()
+    {
+        // Page processing for Author metadata
+    }
+
     public function savePage()
     {
         return $this->pageStatus();

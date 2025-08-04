@@ -28,6 +28,11 @@ class PublishedDate extends Rule
         return __('seo-pro::messages.rules.published_date.fail');
     }
 
+    public function processPage()
+    {
+        // Page processing for Published Date
+    }
+
     public function savePage()
     {
         return $this->pageStatus();
@@ -49,15 +54,28 @@ class PublishedDate extends Rule
         // Check if this is a dated entry (has a date in the data)
         $publishedDate = $this->page->get('published_date');
         
-        // If there's no published date but there is an updated date, 
-        // it might be a page that doesn't need a published date
-        $updatedDate = $this->page->get('updated_date');
-        if (empty($publishedDate) && !empty($updatedDate)) {
-            // This is likely a regular page, not a dated entry
-            return 'pass';
+        // If there's no published date, check if this is a regular page
+        // Pages that aren't blog entries/articles don't need published dates
+        if (empty($publishedDate)) {
+            // If the page doesn't have typical blog entry indicators, pass it
+            $hasDate = !empty($this->page->get('date'));
+            $hasAuthor = !empty($this->page->get('author'));
+            
+            // If it has neither date nor author fields, it's likely a regular page
+            if (!$hasDate && !$hasAuthor) {
+                return 'pass';
+            }
+            
+            // If it has updated_date but no published_date, it's likely a page
+            $updatedDate = $this->page->get('updated_date');
+            if (!empty($updatedDate)) {
+                return 'pass';
+            }
+            
+            return 'fail';
         }
         
-        return empty($publishedDate) ? 'fail' : 'pass';
+        return 'pass';
     }
 
     public function maxPoints()
