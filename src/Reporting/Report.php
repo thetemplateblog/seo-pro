@@ -37,6 +37,8 @@ class Report implements Arrayable, Jsonable
         Rules\UniqueMetaDescription::class,
         Rules\NoUnderscoresInUrl::class,
         Rules\ThreeSegmentUrls::class,
+        Rules\TitleLength::class,
+        Rules\DescriptionLength::class,
         Rules\PublishedDate::class,
         Rules\UpdatedDate::class,
         Rules\AuthorMetadata::class,

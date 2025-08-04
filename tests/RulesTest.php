@@ -8,8 +8,10 @@ use Statamic\SeoPro\Cascade;
 use Statamic\SeoPro\Reporting\Page;
 use Statamic\SeoPro\Reporting\Report;
 use Statamic\SeoPro\Reporting\Rules\AuthorMetadata;
+use Statamic\SeoPro\Reporting\Rules\DescriptionLength;
 use Statamic\SeoPro\Reporting\Rules\OpenGraphMetadata;
 use Statamic\SeoPro\Reporting\Rules\PublishedDate;
+use Statamic\SeoPro\Reporting\Rules\TitleLength;
 use Statamic\SeoPro\Reporting\Rules\UpdatedDate;
 use Statamic\SeoPro\Reporting\Rules\TwitterCardMetadata;
 use Statamic\SeoPro\SiteDefaults;
@@ -454,6 +456,112 @@ class RulesTest extends TestCase
         $result = $rule->setPage($page)->process();
         
         $this->assertEquals('pass', $result->status());
+    }
+
+    /** @test */
+    public function title_length_rule_passes_when_title_is_optimal_length()
+    {
+        $page = $this->createPageWithData([
+            'title' => 'This is a perfectly sized title for SEO' // 39 characters
+        ]);
+        
+        $rule = new TitleLength();
+        $result = $rule->setPage($page)->process();
+        
+        $this->assertEquals('pass', $result->status());
+    }
+
+    /** @test */
+    public function title_length_rule_warns_when_title_is_too_short()
+    {
+        $page = $this->createPageWithData([
+            'title' => 'Short Title' // 11 characters
+        ]);
+        
+        $rule = new TitleLength();
+        $result = $rule->setPage($page)->process();
+        
+        $this->assertEquals('warning', $result->status());
+        $this->assertStringContainsString('not optimal', $result->comment());
+    }
+
+    /** @test */
+    public function title_length_rule_warns_when_title_is_too_long()
+    {
+        $page = $this->createPageWithData([
+            'title' => 'This is an extremely long title that will definitely be truncated in search engine results pages' // 96 characters
+        ]);
+        
+        $rule = new TitleLength();
+        $result = $rule->setPage($page)->process();
+        
+        $this->assertEquals('warning', $result->status());
+    }
+
+    /** @test */
+    public function title_length_rule_warns_when_title_is_empty()
+    {
+        $page = $this->createPageWithData([
+            'title' => ''
+        ]);
+        
+        $rule = new TitleLength();
+        $result = $rule->setPage($page)->process();
+        
+        $this->assertEquals('warning', $result->status());
+    }
+
+    /** @test */
+    public function description_length_rule_passes_when_description_is_optimal_length()
+    {
+        $page = $this->createPageWithData([
+            'description' => 'This is a well-crafted meta description that provides a compelling summary of the page content while staying within the optimal character limit for search.' // 155 characters
+        ]);
+        
+        $rule = new DescriptionLength();
+        $result = $rule->setPage($page)->process();
+        
+        $this->assertEquals('pass', $result->status());
+    }
+
+    /** @test */
+    public function description_length_rule_warns_when_description_is_too_short()
+    {
+        $page = $this->createPageWithData([
+            'description' => 'This is a short description that does not provide enough detail' // 63 characters
+        ]);
+        
+        $rule = new DescriptionLength();
+        $result = $rule->setPage($page)->process();
+        
+        $this->assertEquals('warning', $result->status());
+        $this->assertStringContainsString('not optimal', $result->comment());
+    }
+
+    /** @test */
+    public function description_length_rule_warns_when_description_is_too_long()
+    {
+        $page = $this->createPageWithData([
+            'description' => 'This is an overly long meta description that will definitely be truncated by search engines. It contains far too much information and should be shortened to ensure the full message is visible in search results without being cut off mid-sentence.' // 246 characters
+        ]);
+        
+        $rule = new DescriptionLength();
+        $result = $rule->setPage($page)->process();
+        
+        $this->assertEquals('warning', $result->status());
+    }
+
+    /** @test */
+    public function description_length_rule_warns_when_description_is_empty()
+    {
+        $page = $this->createPageWithData([
+            'description' => ''
+        ]);
+        
+        $rule = new DescriptionLength();
+        $result = $rule->setPage($page)->process();
+        
+        $this->assertEquals('warning', $result->status());
     }
 
     protected function getReportResult($key)

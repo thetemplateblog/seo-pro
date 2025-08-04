@@ -101,6 +101,16 @@ return [
         ],
         'three_segment_urls_page' => 'The URL should be a maximum of 3 segments.',
         'three_segment_urls_site_warning' => ':count page with more than 3 segments in URL.|:count pages with more than 3 segments in their URLs.',
+        'title_length' => [
+            'description' => 'Page titles should be between 30-60 characters for optimal display in search results',
+            'warning' => 'Title length is not optimal',
+            'pill' => 'Title Length',
+        ],
+        'description_length' => [
+            'description' => 'Meta descriptions should be between 120-160 characters for optimal display in search results',
+            'warning' => 'Description length is not optimal',
+            'pill' => 'Description Length',
+        ],
     ],
 
 ];
