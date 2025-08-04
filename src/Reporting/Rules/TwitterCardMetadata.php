@@ -56,15 +56,17 @@ class TwitterCardMetadata extends Rule
     public function pageStatus()
     {
         $twitterTitle = $this->page->get('twitter_title');
+        $twitterDescription = $this->page->get('twitter_description');
         $twitterCard = $this->page->get('twitter_card');
         // Skip twitter:image - images are optional for Twitter Cards
 
         $missingCount = 0;
         if (empty($twitterTitle)) $missingCount++;
+        if (empty($twitterDescription)) $missingCount++;
         if (empty($twitterCard)) $missingCount++;
 
-        // If both are missing, it's a failure
-        if ($missingCount >= 2) {
+        // If all are missing, it's a failure
+        if ($missingCount >= 3) {
             return 'fail';
         } elseif ($missingCount > 0) {
             return 'warning';
