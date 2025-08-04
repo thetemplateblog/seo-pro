@@ -38,6 +38,7 @@ class Report implements Arrayable, Jsonable
         Rules\NoUnderscoresInUrl::class,
         Rules\ThreeSegmentUrls::class,
         Rules\PublishedDate::class,
+        Rules\UpdatedDate::class,
         Rules\AuthorMetadata::class,
         Rules\OpenGraphMetadata::class,
         Rules\TwitterCardMetadata::class,

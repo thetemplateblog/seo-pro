@@ -75,6 +75,12 @@ return [
             'warning' => 'Consider adding a published date',
             'pill' => 'Published Date',
         ],
+        'updated_date' => [
+            'description' => 'Pages should have an updated/modified date for search engines to understand content freshness',
+            'fail' => 'Missing updated date',
+            'warning' => 'Consider tracking when content was last modified',
+            'pill' => 'Updated Date',
+        ],
         'author_metadata' => [
             'description' => 'Pages should have author information for enhanced SEO',
             'fail' => 'Missing author information',

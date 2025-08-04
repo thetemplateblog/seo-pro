@@ -10,6 +10,7 @@ use Statamic\SeoPro\Reporting\Report;
 use Statamic\SeoPro\Reporting\Rules\AuthorMetadata;
 use Statamic\SeoPro\Reporting\Rules\OpenGraphMetadata;
 use Statamic\SeoPro\Reporting\Rules\PublishedDate;
+use Statamic\SeoPro\Reporting\Rules\UpdatedDate;
 use Statamic\SeoPro\Reporting\Rules\TwitterCardMetadata;
 use Statamic\SeoPro\SiteDefaults;
 
@@ -408,6 +409,53 @@ class RulesTest extends TestCase
         ]);
         
         $rule = new PublishedDate();
+        $result = $rule->setPage($page)->process();
+        
+        $this->assertEquals('pass', $result->status());
+    }
+
+    /** @test */
+    public function updated_date_rule_passes_when_date_exists()
+    {
+        // Simply pass updated_date directly in the cascade data
+        $cascadeData = [
+            'title' => 'Test Page',
+            'canonical_url' => 'http://test.com/page',
+            'updated_date' => '2024-01-15T10:00:00+00:00'
+        ];
+        
+        $page = new Page('test-id', $cascadeData, Report::create());
+        
+        $rule = new UpdatedDate();
+        $result = $rule->setPage($page)->process();
+        
+        $this->assertEquals('pass', $result->status());
+    }
+
+    /** @test */
+    public function updated_date_rule_warns_when_date_is_missing()
+    {
+        $page = $this->createPageWithData([]);
+        
+        $rule = new UpdatedDate();
+        $result = $rule->setPage($page)->process();
+        
+        $this->assertEquals('warning', $result->status());
+        $this->assertStringContainsString('when content was last modified', $result->comment());
+    }
+
+    /** @test */
+    public function updated_date_rule_passes_for_taxonomy_pages()
+    {
+        // Taxonomy pages are identified by :: in their ID
+        $report = Report::create();
+        $page = new Page('categories::technology', [
+            'id' => 'categories::technology',
+            'title' => 'Technology',
+            'canonical_url' => 'http://test.com/categories/technology'
+        ], $report);
+        
+        $rule = new UpdatedDate();
         $result = $rule->setPage($page)->process();
         
         $this->assertEquals('pass', $result->status());
