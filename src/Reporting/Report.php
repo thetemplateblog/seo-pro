@@ -39,11 +39,6 @@ class Report implements Arrayable, Jsonable
         Rules\ThreeSegmentUrls::class,
         Rules\TitleLength::class,
         Rules\DescriptionLength::class,
-        Rules\PublishedDate::class,
-        Rules\UpdatedDate::class,
-        Rules\AuthorMetadata::class,
-        Rules\OpenGraphMetadata::class,
-        Rules\TwitterCardMetadata::class,
     ];
 
     public static function create($id = null)
